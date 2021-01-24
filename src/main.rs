@@ -1,4 +1,3 @@
-use crate::parser::Parser;
 use crate::music::Music;
 
 mod note;

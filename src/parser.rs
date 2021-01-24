@@ -169,7 +169,7 @@ impl<'a> Parser<'a> {
         // parse mark
         let mark_start = start;
         if start < len && (note_u8[start] == '#' as u8
-            || note_u8[start] == '^' as u8)
+            || note_u8[start] == 'b' as u8)
         {
             start += 1;
         }
@@ -211,7 +211,7 @@ impl<'a> Parser<'a> {
         let mut result = 0.0;
         for beat in beats.chars() {
             let duration_rate = match beat {
-                '_' => 0.5,
+                '_' => if result != 0.0 { -result * 0.5 } else { 0.5 },
                 '-' => if result != 0.0 { 1.0 } else { 2.0 },
                 '*' => if result != 0.0 { result * 0.5 } else { 1.5 },
                 _ => panic!("cannot parse beat seq: \"{}\", got unexpected beat: '{}'", beats, beat),
