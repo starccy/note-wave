@@ -4,6 +4,7 @@ use crate::note::Note;
 pub struct Tune {
     pub note: Note,
     pub beat: f32,
+    pub channel: u32,
 }
 
 pub struct Parser<'a> {
@@ -19,21 +20,33 @@ pub struct SheetMusic {
 
 impl SheetMusic {
     pub fn add_into_blank_note(&mut self, beat: f32) {
-        let blank_note = Tune {
-            note: Note::NONE,
-            beat,
-        };
         let mut i = 1;
         while i < self.tunes.len() {
             if self.tunes[i].note == Note::NONE {
                 i += 1;
                 continue;
             }
-            if self.tunes[i].note == self.tunes[i - 1].note {
-                self.tunes.insert(i, blank_note);
+            if let Some(tune) = self.find_last_tune(i, self.tunes[i].channel) {
+                if tune.note == self.tunes[i].note {
+                    let blank_note = Tune {
+                        note: Note::NONE,
+                        beat,
+                        channel: self.tunes[i].channel,
+                    };
+                    self.tunes.insert(i, blank_note);
+                }
             }
             i += 1;
         }
+    }
+
+    fn find_last_tune(&self, cur_pos: usize, channel: u32) -> Option<&Tune> {
+        for i in (0..cur_pos).rev() {
+            if self.tunes[i].channel == channel {
+                return Some(&self.tunes[i]);
+            }
+        }
+        return None
     }
 }
 
@@ -88,8 +101,18 @@ impl<'a> Parser<'a> {
             if !has_speed {
                 continue;
             }
-            let split_notes = Self::split_notes(line);
-            let line_tunes = split_notes.into_iter().filter_map(Self::parse_note)
+            let mut split_notes = Self::split_notes(line);
+            if split_notes.is_empty() {
+                continue;
+            }
+            let channel = match Self::parse_channel(split_notes[0]) {
+                Some(channel) => {
+                    split_notes.remove(0);
+                    channel
+                },
+                _ => 0,
+            };
+            let line_tunes = split_notes.into_iter().filter_map(|x| Self::parse_note(x, channel))
                 .collect::<Vec<_>>();
             tunes.extend(line_tunes);
         }
@@ -142,7 +165,46 @@ impl<'a> Parser<'a> {
         }
     }
 
-    fn parse_note(note: &str) -> Option<Tune> {
+    fn parse_channel(input: &str) -> Option<u32> {
+        // none means no channel specific, so use both channels
+        let len = input.len();
+        let input_u8 = input.as_bytes();
+        let mut start = 0;
+        if input_u8[start] != '{' as u8 {
+            return None;
+        }
+        start += 1;
+
+        let channel_start = start;
+        while start < len && input_u8[start] != '}' as u8 {
+            start += 1;
+        }
+        if start < len - 1{
+            panic!("got invalid value after '}}' when parse channel: {}", &input[start..len]);
+        }
+        if input_u8[len - 1] != '}' as u8 {
+            panic!("{}", "need close curly braces '}' when parse channel");
+        }
+        let inner_str = &input[channel_start..start];
+        let inner_str_u8 = inner_str.as_bytes();
+        if inner_str_u8[inner_str.len() - 1] != ':' as u8 {
+            panic!("need ':' when parse channel");
+        }
+        start = 0;
+        let number_start = start;
+        while start < inner_str.len() && inner_str_u8[start] != ':' as u8 {
+            start += 1;
+        }
+        let channel_str = &inner_str[number_start..start];
+        let channel = channel_str.parse::<u32>().ok();
+        if let Some(channel_num) = channel {
+            Some(channel_num)
+        } else {
+            panic!("need number value to be channel, got: {}", channel_str);
+        }
+    }
+
+    fn parse_note(note: &str, channel: u32) -> Option<Tune> {
         let mut start = 0;
         let len = note.len();
         let note_u8 = note.as_bytes();
@@ -201,6 +263,7 @@ impl<'a> Parser<'a> {
         Some(Tune {
             note,
             beat,
+            channel,
         })
     }
 
