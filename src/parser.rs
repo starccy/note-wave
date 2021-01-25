@@ -26,8 +26,9 @@ impl SheetMusic {
                 i += 1;
                 continue;
             }
-            if let Some(tune) = self.find_last_tune(i, self.tunes[i].channel) {
+            if let Some((idx, tune)) = self.find_last_tune(i, self.tunes[i].channel) {
                 if tune.note == self.tunes[i].note {
+                    self.tunes[idx].beat -= beat;
                     let blank_note = Tune {
                         note: Note::NONE,
                         beat,
@@ -40,10 +41,10 @@ impl SheetMusic {
         }
     }
 
-    fn find_last_tune(&self, cur_pos: usize, channel: u32) -> Option<&Tune> {
+    fn find_last_tune(&self, cur_pos: usize, channel: u32) -> Option<(usize, &Tune)> {
         for i in (0..cur_pos).rev() {
             if self.tunes[i].channel == channel {
-                return Some(&self.tunes[i]);
+                return Some((i, &self.tunes[i]));
             }
         }
         return None
