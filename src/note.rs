@@ -2,6 +2,24 @@
 mod freq {
     pub const NONE: (f32, &str) = (0.0, "0");
 
+    pub const C2: (f32, &str) = (65.41, "1..");
+    pub const C2S: (f32, &str) = (69.30, "1..#");
+    pub const D2B: (f32, &str) = (69.30, "2..b");
+    pub const D2: (f32, &str) = (73.42, "2..");
+    pub const D2S: (f32, &str) = (77.78, "2..#");
+    pub const E2B: (f32, &str) = (77.78, "3..b");
+    pub const E2: (f32, &str) = (82.41, "3..");
+    pub const F2: (f32, &str) = (87.31, "4..");
+    pub const F2S: (f32, &str) = (92.50, "4..#");
+    pub const G2B: (f32, &str) = (92.50, "5..b");
+    pub const G2: (f32, &str) = (98.00, "5..");
+    pub const G2S: (f32, &str) = (103.83, "5..#");
+    pub const A2B: (f32, &str) = (103.83, "6..b");
+    pub const A2: (f32, &str) = (110.00, "6..");
+    pub const A2S: (f32, &str) = (116.54, "6..#");
+    pub const B2B: (f32, &str) = (116.54, "7..b");
+    pub const B2: (f32, &str) = (123.47, "7..");
+
     pub const C3: (f32, &str) = (130.81, "1.");
     pub const C3S: (f32, &str) = (138.59, "1.#");
     pub const D3B: (f32, &str) = (138.59, "2.b");
@@ -19,6 +37,7 @@ mod freq {
     pub const A3S: (f32, &str) = (233.08, "6.#");
     pub const B3B: (f32, &str) = (233.08, "7.b");
     pub const B3: (f32, &str) = (246.94, "7.");
+
     pub const C4: (f32, &str) = (261.63, "1");
     pub const C4S: (f32, &str) = (277.18, "1#");
     pub const D4B: (f32, &str) = (277.18, "2b");
@@ -36,6 +55,7 @@ mod freq {
     pub const A4S: (f32, &str) = (466.16, "6#");
     pub const B4B: (f32, &str) = (466.16, "7b");
     pub const B4: (f32, &str) = (493.88, "7");
+
     pub const C5: (f32, &str) = (523.25, "1^");
     pub const C5S: (f32, &str) = (554.37, "1^#");
     pub const D5B: (f32, &str) = (554.37, "2^b");
@@ -82,6 +102,7 @@ macro_rules! impl_note {
 }
 
 impl_note!(NONE,
+    C2, C2S, D2B, D2, D2S, E2B, E2, F2, F2S, G2B, G2, G2S, A2B, A2, A2S, B2B, B2,
     C3, C3S, D3B, D3, D3S, E3B, E3, F3, F3S, G3B, G3, G3S, A3B, A3, A3S, B3B, B3,
     C4, C4S, D4B, D4, D4S, E4B, E4, F4, F4S, G4B, G4, G4S, A4B, A4, A4S, B4B, B4,
     C5, C5S, D5B, D5, D5S, E5B, E5, F5, F5S, G5B, G5, G5S, A5B, A5, A5S, B5B, B5
